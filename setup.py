@@ -1,14 +1,11 @@
 #!/usr/bin/env python
-
-import distribute_setup
-distribute_setup.use_setuptools()
-
 import os
 from setuptools import setup
+from setuptools import find_packages
 
 PROJECT = u'AnsibleCharm'
 VERSION = '0.1'
-URL = "https://jujucharms.com"
+URL = "https://blog.juju.solutions"
 AUTHOR = u'Whit Morriss <whit.morriss@canonical.com>'
 AUTHOR_EMAIL = u'whit.morriss@canonical.com'
 DESC = "Python library for charming with ansible"
@@ -31,14 +28,12 @@ setup(
     author_email=AUTHOR_EMAIL,
     url=URL,
     license=read_file('LICENSE'),
-    namespace_packages=[],
-    packages=[u'ansiblecharm'],
-    package_dir={'': os.path.dirname(__file__)},
+    packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         "path.py",
-        "charm-helpers"
+        "charmhelpers"
     ],
     entry_points="""
     """,

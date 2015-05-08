@@ -42,7 +42,6 @@ class InstallAnsibleSupportTestCase(unittest.TestCase):
         self.mock_core = patcher.start()
         self.addCleanup(patcher.stop)
 
-
     def test_adds_ppa_by_default(self):
         ansible, hookenv = self.makeone()
         ansible.install_ansible_support()
@@ -158,7 +157,6 @@ class ApplyPlaybookTestCases(unittest.TestCase):
         patcher = mock.patch('charmhelpers.core.hookenv.log')
         self.mock_hooklog = patcher.start()
         self.addCleanup(patcher.stop)
-
 
     def test_calls_ansible_playbook(self):
         ansible, hookenv = self.makeone()
