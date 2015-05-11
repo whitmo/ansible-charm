@@ -78,7 +78,7 @@ from . import state
 from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import log
 from path import path
-import charmhelpers.fetch
+from charmhelpers import fetch
 import os
 import subprocess
 
@@ -102,9 +102,9 @@ def install_ansible_support(from_ppa=True, ppa_location='ppa:rquillo/ansible'):
     from a configured repository.
     """
     if from_ppa:
-        charmhelpers.fetch.add_source(ppa_location)
-        charmhelpers.fetch.apt_update(fatal=True)
-    charmhelpers.fetch.apt_install('ansible')
+        fetch.add_source(ppa_location)
+        fetch.apt_update(fatal=True)
+    fetch.apt_install('ansible')
     with open(ansible_hosts_path, 'w+') as hosts_file:
         hosts_file.write('localhost ansible_connection=local')
 

@@ -1,14 +1,14 @@
+from mock import patch
+from pytest import mark
 import mock
 import tempfile
 import unittest
-from pytest import mark
 
 
-@mark.skipif(True, reason="DELAYED FIXES")
 class InstallAnsibleSupportTestCase(unittest.TestCase):
 
     def makeone(self):
-        from charmhelpers.contrib import ansible
+        from ansiblecharm import runner as ansible
         from charmhelpers.core import hookenv
 
         hosts_file = tempfile.NamedTemporaryFile()
@@ -29,11 +29,13 @@ class InstallAnsibleSupportTestCase(unittest.TestCase):
     def setUp(self):
         super(InstallAnsibleSupportTestCase, self).setUp()
 
-        patcher = mock.patch('charmhelpers.fetch')
-        self.mock_fetch = patcher.start()
-        self.addCleanup(patcher.stop)
+        self.mocks = {}
+        for func in ('add_source', 'apt_update', 'apt_install'):
+            patcher = patch('charmhelpers.fetch.%s' % func)
+            self.mocks[func] = patcher.start()
+            self.addCleanup(patcher.stop)
 
-        patcher = mock.patch('charmhelpers.core')
+        patcher = patch('charmhelpers.core')
         self.mock_core = patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -41,24 +43,22 @@ class InstallAnsibleSupportTestCase(unittest.TestCase):
         ansible, hookenv = self.makeone()
         ansible.install_ansible_support()
 
-        self.mock_fetch.add_source.assert_called_once_with(
+        self.mocks['add_source'].assert_called_once_with(
             'ppa:rquillo/ansible')
-        self.mock_fetch.apt_update.assert_called_once_with(fatal=True)
-        self.mock_fetch.apt_install.assert_called_once_with(
+        self.mocks['apt_update'].assert_called_once_with(fatal=True)
+        self.mocks['apt_install'].assert_called_once_with(
             'ansible')
-
 
     def test_no_ppa(self):
         ansible, hookenv = self.makeone()
         ansible.install_ansible_support(from_ppa=False)
 
-        self.assertEqual(self.mock_fetch.add_source.call_count, 0)
-        self.mock_fetch.apt_install.assert_called_once_with(
-            'ansible')
+        self.assertEqual(self.mocks['add_source'].call_count, 0)
+        self.mocks['apt_install'].assert_called_once_with('ansible')
 
     def test_writes_ansible_hosts(self):
         ansible, hookenv = self.makeone()
-        with open(self.ansible_hosts_path) as h_osts_file:
+        with open(self.ansible_hosts_path) as hosts_file:
             self.assertEqual(hosts_file.read(), '')
 
         ansible.install_ansible_support()
