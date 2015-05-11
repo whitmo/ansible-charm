@@ -183,7 +183,7 @@ class AnsibleHooks(hookenv.Hooks):
 
     """
     playbook = staticmethod(apply_playbook)
-    charm_dir = path(hookenv.charm_dir())
+    charm_dir = path(charm_dir)
     charm_modules = charm_dir / "modules"
     charm_name = hookenv.charm_name
 
@@ -211,7 +211,7 @@ class AnsibleHooks(hookenv.Hooks):
         if self.charm_modules.exists():
             modules.append(self.charm_modules)
 
-        modules = isinstance(module, list) and ":".join(modules)
+        modules = isinstance(modules, list) and ":".join(modules)
 
         tags = [hook_name]
         if any_tag is True:
