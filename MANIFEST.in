@@ -1,4 +1,8 @@
 include MANIFEST.in
-include README.rst
-include distribute_setup.py
+include README.md
+include LICENSE
+include COPYING
+include COPYING.LESSER
 include setup.py
+include py.test.ini
+include tox.ini

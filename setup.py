@@ -28,15 +28,15 @@ setup(
     author_email=AUTHOR_EMAIL,
     url=URL,
     license=read_file('LICENSE'),
-    packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+    packages=find_packages(exclude=['examples', 'tests']),
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         "path.py",
         "charmhelpers"
     ],
-    entry_points="""
-    """,
+#    entry_points="""
+#    """,
     classifiers=[
         'License :: OSI Approved',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
