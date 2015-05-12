@@ -177,6 +177,7 @@ class AnsibleHooks(hookenv.Hooks):
         self.modules = self.modules or []
 
         implicit_hooks = set(hook_names(self.hook_dir))
+        log(implicit_hooks)
         default_hooks = default_hooks \
             and set(default_hooks) | implicit_hooks or implicit_hooks
 
