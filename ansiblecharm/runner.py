@@ -168,11 +168,13 @@ class AnsibleHooks(hookenv.Hooks):
     charm_name = hookenv.charm_name
     hook_dir = path(__file__).parent
 
-    def __init__(self, playbook_path, default_hooks=None, merge_hooks=True):
+    def __init__(self, playbook_path, default_hooks=None, merge_hooks=True, modules=None):
         """Register any hooks handled by ansible."""
         super(AnsibleHooks, self).__init__()
 
         self.playbook_path = playbook_path
+        self.modules = isinstance(modules, basestring) and [modules]
+        self.modules = self.modules or []
 
         implicit_hooks = set(hook_names(self.hook_dir))
         default_hooks = default_hooks \
@@ -184,20 +186,17 @@ class AnsibleHooks(hookenv.Hooks):
     def noop(self, *args, **kwargs):
         pass
 
-    def execute(self, args, verbosity=1, any_tag=False, modules=None):
+    def execute(self, args, verbosity=1, any_tag=False):
         """Execute the hook followed by the playbook using the hook as tag."""
         super(AnsibleHooks, self).execute(args)
         hook_file = path(args[0])
         hook_name = hook_file.basename()
 
-        modules = modules is None and []
-        modules = isinstance(modules, basestring) and [modules]
-
         # pick up implicit module path
         if self.charm_modules.exists():
-            modules.append(self.charm_modules)
+            self.modules.append(self.charm_modules)
 
-        modules = isinstance(modules, list) and ":".join(modules)
+        modules = ":".join(self.modules)
 
         tags = [hook_name]
         if any_tag is True:
