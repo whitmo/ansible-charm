@@ -168,16 +168,18 @@ class AnsibleHooks(hookenv.Hooks):
     charm_name = hookenv.charm_name
     hook_dir = path(__file__).parent
 
-    def __init__(self, playbook_path, default_hooks=None, merge_hooks=True, modules=None):
+    def __init__(self, playbook_path,
+                 default_hooks=None, hook_dir=None,
+                 merge_hooks=True, modules=None):
         """Register any hooks handled by ansible."""
         super(AnsibleHooks, self).__init__()
 
+        self.hook_dir = path(hook_dir)
         self.playbook_path = playbook_path
         self.modules = isinstance(modules, basestring) and [modules]
         self.modules = self.modules or []
 
-        implicit_hooks = set(hook_names(self.hook_dir))
-        log(implicit_hooks)
+        implicit_hooks = hook_dir and set(hook_names(self.hook_dir)) or set()
         default_hooks = default_hooks \
             and set(default_hooks) | implicit_hooks or implicit_hooks
 
