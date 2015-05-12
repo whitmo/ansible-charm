@@ -19,8 +19,9 @@ def write_hosts_file(ansible_hosts_path='/etc/ansible/hosts'):
     ansible requires a hosts file with a valid entry to run
     """
     ansible_hosts_path = path(ansible_hosts_path)
-    if ansible_hosts_path.exists():
+    if not ansible_hosts_path.exists():
         ansible_hosts_path.write_text('localhost ansible_connection=local')
+    return ansible_hosts_path
 
 
 def install_ansible_support(from_ppa=True,
