@@ -181,7 +181,7 @@ class AnsibleHooks(hookenv.Hooks):
             and set(default_hooks) | implicit_hooks or implicit_hooks
 
         for hook in default_hooks:
-            log.info('Register %s' % hook)
+            log('Register %s' % hook)
             self.register(hook, self.noop)
 
     def noop(self, *args, **kwargs):
