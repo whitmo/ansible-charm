@@ -75,38 +75,18 @@ Read more online about `playbooks`_ and standard ansible `modules`_.
 
 """
 from . import state
+from .helpers import hook_names
 from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import log
 from path import path
-from charmhelpers import fetch
 import os
 import subprocess
 
 charm_dir = os.environ.get('CHARM_DIR', '')
-ansible_hosts_path = '/etc/ansible/hosts'
+
 # Ansible will automatically include any vars in the following
 # file in its inventory when run locally.
 ansible_vars_path = '/etc/ansible/host_vars/localhost'
-
-
-def install_ansible_support(from_ppa=True, ppa_location='ppa:rquillo/ansible'):
-    """Installs the ansible package.
-
-    By default it is installed from the `PPA`_ linked from
-    the ansible `website`_ or from a ppa specified by a charm config..
-
-    .. _PPA: https://launchpad.net/~rquillo/+archive/ansible
-    .. _website: http://docs.ansible.com/intro_installation.html#latest-releases-via-apt-ubuntu
-
-    If from_ppa is empty, you must ensure that the package is available
-    from a configured repository.
-    """
-    if from_ppa:
-        fetch.add_source(ppa_location)
-        fetch.apt_update(fatal=True)
-    fetch.apt_install('ansible')
-    with open(ansible_hosts_path, 'w+') as hosts_file:
-        hosts_file.write('localhost ansible_connection=local')
 
 
 def apply_playbook(playbook, tags=None, verbosity=0, module_path=None):
@@ -186,6 +166,7 @@ class AnsibleHooks(hookenv.Hooks):
     charm_dir = path(charm_dir)
     charm_modules = charm_dir / "modules"
     charm_name = hookenv.charm_name
+    hook_dir = path(__file__).parent
 
     def __init__(self, playbook_path, default_hooks=None):
         """Register any hooks handled by ansible."""
@@ -193,10 +174,12 @@ class AnsibleHooks(hookenv.Hooks):
 
         self.playbook_path = playbook_path
 
-        default_hooks = default_hooks or []
-        noop = lambda *args, **kwargs: None
+        default_hooks = default_hooks or hook_names(self.hook_dir)
         for hook in default_hooks:
-            self.register(hook, noop)
+            self.register(hook, self.noop)
+
+    def noop(self, *args, **kwargs):
+        pass
 
     def execute(self, args, verbosity=1, any_tag=False, modules=None):
         """Execute the hook followed by the playbook using the hook as tag."""

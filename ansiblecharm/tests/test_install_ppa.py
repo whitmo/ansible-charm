@@ -1,5 +1,5 @@
+from functools import partial
 from mock import patch
-from pytest import mark
 import mock
 import tempfile
 import unittest
@@ -9,22 +9,24 @@ class InstallAnsibleSupportTestCase(unittest.TestCase):
 
     def makeone(self):
         from ansiblecharm import runner as ansible
+        from ansiblecharm import helpers
         from charmhelpers.core import hookenv
 
         hosts_file = tempfile.NamedTemporaryFile()
         self.ansible_hosts_path = hosts_file.name
         self.addCleanup(hosts_file.close)
 
-        patcher = mock.patch.object(ansible,
-                                    'ansible_hosts_path',
-                                    self.ansible_hosts_path)
+        patcher = mock.patch.object(helpers,
+                                    'write_hosts_file',
+                                    partial(helpers.write_hosts_file,
+                                            self.ansible_hosts_path))
         patcher.start()
         self.addCleanup(patcher.stop)
 
         patcher = mock.patch.object(ansible, 'log')
         patcher.start()
         self.addCleanup(patcher.stop)
-        return ansible, hookenv
+        return helpers, hookenv
 
     def setUp(self):
         super(InstallAnsibleSupportTestCase, self).setUp()
