@@ -121,7 +121,7 @@ def apply_playbook(playbook, tags=None, verbosity=0, module_path=None):
         call.extend(['--tags', '{}'.format(tags)])
 
     if module_path:
-        call.append("--module_path={}".format(module_path))
+        call.append("--module-path={}".format(module_path))
 
     log(' '.join(call), level="INFO")
     subprocess.check_call(call, env=env)
