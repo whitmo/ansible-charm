@@ -174,7 +174,9 @@ class AnsibleHooks(hookenv.Hooks):
         """Register any hooks handled by ansible."""
         super(AnsibleHooks, self).__init__()
 
-        self.hook_dir = path(hook_dir)
+        self.hook_dir = hook_dir and path(hook_dir) \
+            or path(hookenv.charm_dir() or '.') / 'hooks'
+
         self.playbook_path = playbook_path
         self.modules = isinstance(modules, basestring) and [modules]
         self.modules = self.modules or []

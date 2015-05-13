@@ -3,6 +3,7 @@ from mock import patch
 import mock
 import tempfile
 import unittest
+from path import path
 
 
 class InstallAnsibleSupportTestCase(unittest.TestCase):
@@ -13,14 +14,14 @@ class InstallAnsibleSupportTestCase(unittest.TestCase):
         from charmhelpers.core import hookenv
 
         hosts_file = tempfile.NamedTemporaryFile()
-        self.ansible_hosts_path = hosts_file.name
+        self.ansible_hosts_path = path(hosts_file.name)
         self.addCleanup(hosts_file.close)
 
         patcher = mock.patch.object(helpers,
                                     'write_hosts_file',
                                     partial(helpers.write_hosts_file,
                                             self.ansible_hosts_path))
-        patcher.start()
+        self.whfm = patcher.start()
         self.addCleanup(patcher.stop)
 
         patcher = mock.patch.object(ansible, 'log')
@@ -63,8 +64,8 @@ class InstallAnsibleSupportTestCase(unittest.TestCase):
         with open(self.ansible_hosts_path) as hosts_file:
             self.assertEqual(hosts_file.read(), '')
 
+        self.ansible_hosts_path.remove()
         ansible.install_ansible_support()
 
-        with open(self.ansible_hosts_path) as hosts_file:
-            self.assertEqual(hosts_file.read(),
-                             'localhost ansible_connection=local')
+        assert self.ansible_hosts_path.text() == \
+            'localhost ansible_connection=local'
