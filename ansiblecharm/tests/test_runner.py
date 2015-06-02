@@ -2,7 +2,6 @@
 #
 # Authors:
 #  Charm Helpers Developers <juju@lists.ubuntu.com>
-from mock import patch
 import dictdiffer as dd
 import mock
 import os
