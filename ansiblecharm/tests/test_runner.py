@@ -2,13 +2,14 @@
 #
 # Authors:
 #  Charm Helpers Developers <juju@lists.ubuntu.com>
+from mock import patch
+import dictdiffer as dd
 import mock
 import os
 import shutil
 import tempfile
 import unittest
 import yaml
-import dictdiffer as dd
 
 
 class ApplyPlaybookTestCases(unittest.TestCase):
@@ -37,6 +38,12 @@ class ApplyPlaybookTestCases(unittest.TestCase):
         self.vars_path = os.path.join(etc_dir, 'ansible', 'vars.yaml')
         patcher = mock.patch.object(ansible,
                                     'ansible_vars_path', self.vars_path)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+        self.wfh_mock = mock.Mock(name="wfh")
+        patcher = mock.patch.object(ansible.AnsibleHooks,
+                                    'write_hosts_file', self.wfh_mock)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -104,6 +111,7 @@ class ApplyPlaybookTestCases(unittest.TestCase):
         self.mock_subprocess.check_call.assert_called_once_with([
             'ansible-playbook', '-c', 'local', 'playbooks/dependencies.yaml'],
             env={'PYTHONUNBUFFERED': '1'})
+
 
     def test_writes_vars_file(self):
         ansible, hookenv = self.makeone()
@@ -174,6 +182,7 @@ class ApplyPlaybookTestCases(unittest.TestCase):
             self.mock_subprocess.check_call.assert_called_once_with([
                 'ansible-playbook', '-c', 'local', '-v', 'my/playbook.yaml',
                 '--tags', 'foo'], env={'PYTHONUNBUFFERED': '1'})
+            assert self.wfh_mock.called
 
     def test_specifying_ansible_handled_hooks(self):
         ansible, hookenv = self.makeone()
@@ -186,3 +195,4 @@ class ApplyPlaybookTestCases(unittest.TestCase):
             self.mock_subprocess.check_call.assert_called_once_with([
                 'ansible-playbook', '-c', 'local', '-v', 'my/playbook.yaml',
                 '--tags', 'start'], env={'PYTHONUNBUFFERED': '1'})
+            assert self.wfh_mock.called

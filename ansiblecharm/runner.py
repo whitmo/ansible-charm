@@ -76,6 +76,7 @@ Read more online about `playbooks`_ and standard ansible `modules`_.
 """
 from . import state
 from .helpers import hook_names
+from .helpers import write_hosts_file
 from charmhelpers.core import hookenv
 from charmhelpers.core.hookenv import log
 from path import path
@@ -89,7 +90,8 @@ charm_dir = os.environ.get('CHARM_DIR', '')
 ansible_vars_path = '/etc/ansible/host_vars/localhost'
 
 
-def apply_playbook(playbook, tags=None, verbosity=0, module_path=None):
+def apply_playbook(playbook, tags=None, verbosity=0,
+                   module_path=None, write_hosts_file=write_hosts_file):
     tags = tags or []
     tags = ",".join(tags)
 
@@ -167,6 +169,7 @@ class AnsibleHooks(hookenv.Hooks):
     charm_modules = charm_dir / "modules"
     charm_name = hookenv.charm_name
     hook_dir = path(__file__).parent
+    write_hosts_file = staticmethod(write_hosts_file)
 
     def __init__(self, playbook_path,
                  default_hooks=None, hook_dir=None,
@@ -208,5 +211,6 @@ class AnsibleHooks(hookenv.Hooks):
         if any_tag is True:
             tags.append("any")
 
+        self.write_hosts_file()
         self.playbook(self.playbook_path,
                       tags=tags, verbosity=verbosity, module_path=modules)
